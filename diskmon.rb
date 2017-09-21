@@ -13,13 +13,13 @@ class BastionInstance < TargetInstance
 
     include SSHKit::DSL
 
-    def run_command(remote_host, key, command)
+    def run_command(remote_host, remote_key, command)
         ssh_host = SSHKit::Host.new(remote_host)
         ssh_host.user = "ec2-user"
         ssh_host.ssh_options = {
             proxy: to_proxy,
             auth_methods: %w(publickey),
-            keys: [to_real_key(key)]
+            keys: [to_real_key(remote_key)]
         }
         on ssh_host do
             execute command
@@ -34,8 +34,8 @@ class BastionInstance < TargetInstance
         File.join(ENV['HOME'], '.ssh', "#{key}.pem")
     end
 
-    def to_remote_key(key)
-        File.join('/home/ec2-user/.ssh/', key + '.pem')
+    def ssh_command(remote_host, remote_key)
+        puts "ssh -oProxyCommand='ssh -W %h:%p ec2-user@#{host} -i #{to_real_key(key)}' ec2-user@#{remote_host} -i #{to_real_key(remote_key)}"
     end
 
 end
@@ -96,6 +96,7 @@ hosts = Hostfile.new(InstanceRepository.new).load
 hosts.each do |h|
     h[:targets].each do |t| 
         puts t.name + "@" + t.instance_id
+        puts h[:bastion].ssh_command(t.host, t.key)
         h[:bastion].run_command(t.host, t.key, 'df -H') 
     end
 end
