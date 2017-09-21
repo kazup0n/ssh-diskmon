@@ -1,0 +1,7 @@
+hosts:
+  bastion-name:
+  - target-name-1
+  - target-name-2
+  bastion-name2:
+  - target-name-3
+  - target-name-4
