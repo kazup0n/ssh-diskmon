@@ -53,9 +53,11 @@ module DiskMon
         include SSHKit::DSL
 
         def run_command(command)
+            cap = nil
             on create_ssh_host do
-                execute command
+                cap  = capture(command)
             end
+            cap
         end
 
         def ssh_command
@@ -89,7 +91,9 @@ module DiskMon
         def run_command(command)
             ssh_host = @target.create_ssh_host
             ssh_host.ssh_options = @bastion.ssh_options
-            on(ssh_host) { execute command }
+            cap = nil
+            on(ssh_host) { cap = capture(command) }
+            cap
         end
     
         def ssh_command
