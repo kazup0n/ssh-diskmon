@@ -5,7 +5,7 @@
 
 # 詳細
 
-- インスタンスは付与されている`Name`タグで指定します。
+- 対象のインスタンスは`hosts.yml`に記述します。インスタンスに付与されている`Name`タグで指定します。
 - 接続に使う秘密鍵は `~/.ssh/<インスタンスに設定されている鍵名>.pem` に配置されている前提です
 
 
@@ -19,7 +19,7 @@ $ cd ssh-diskmon
 $ bundle exec install --path vendor/bundle
 ```
 
-### hosts.conf
+### hosts.yml
 
 ホストの指定
 
