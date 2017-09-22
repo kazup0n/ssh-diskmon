@@ -83,6 +83,8 @@ module DiskMon
         include KeySupport
         include SSHKit::DSL
 
+        attr_reader :bastion, :target
+
         def initialize(bastion, target)
             @bastion = bastion
             @target = target

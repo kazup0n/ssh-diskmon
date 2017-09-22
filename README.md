@@ -52,3 +52,22 @@ Usage: diskmon [options]
 $ bundle exec ruby diskmon.rb --profile prd --format table --show-ssh --region eu-west-1
 ```
 
+## show_ssh.rb
+
+hosts.ymlに定義されたインスタンスのNameとSSH接続コマンドだけを一覧表示します。
+デフォルトではjsonフォーマットで出力します。
+
+
+### jqと一緒に
+
+TBD
+
+### pecoと一緒に
+
+下記の例のように[peco](https://github.com/peco/peco) にパイプしてevalすると簡単にSSH接続ができます
+
+#### fishで使う例
+
+```
+eval (bundle exec ruby show_ssh.rb --profile sbj-prd --format table | peco | cut -d '|' -f 2)
+```

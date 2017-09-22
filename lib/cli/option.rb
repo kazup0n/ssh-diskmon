@@ -1,6 +1,27 @@
+require 'optparse'
+
 class Option
 
-    def parse(argv = ARGV)
+    attr_reader :opts
+
+    def initialize(opts)
+        @opts = opts
+    end
+
+    def self.configure
+        option = Option.new(self.parse)
+        option.configure_aws
+        option.opts
+    end
+
+    def configure_aws
+        Aws.config[:profile] = opts[:profile] unless opts[:profile].nil?
+        Aws.config[:region] = opts[:region] unless opts[:region].nil?
+    end
+
+    private
+
+    def self.parse(argv = ARGV)
         parser = OptionParser.new
         opts = {
             profile: nil,
@@ -18,14 +39,15 @@ class Option
         rescue OptionParser::InvalidOption => e
             usage(parser, e.message)
         end
-        [opts, args]
+        opts
     end
 
     private
-    def usage(parser, msg)
-        puts op.to_s
+    def self.usage(parser, msg)
+        puts parser.to_s
         puts "error: #{msg}" if msg
         exit 1
     end
+
 
 end
