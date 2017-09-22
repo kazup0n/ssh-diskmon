@@ -5,3 +5,4 @@ git_source(:github) {|repo_name| "https://github.com/#{repo_name}" }
 
 gem 'sshkit'
 gem 'aws-sdk'
+gem 'table_print'

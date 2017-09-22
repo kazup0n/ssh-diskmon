@@ -105,7 +105,7 @@ module DiskMon
         end
 
         def to_s
-            "#{@target.to_s} via #{@bastion.to_s}"
+            "#{@target.name}(#{@target.instance_id}) via #{@bastion.name}"
         end
     
     end

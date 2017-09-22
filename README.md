@@ -8,7 +8,16 @@
 - インスタンスは付与されている`Name`タグで指定します。
 - 接続に使う秘密鍵は `~/.ssh/<インスタンスに設定されている鍵名>.pem` に配置されている前提です
 
-## usage
+
+## 使い方
+
+### セットアップ
+
+```
+$ git@github.com:cm-kazup0n/ssh-diskmon.git
+$ cd ssh-diskmon
+$ bundle exec install --path vendor/bundle
+```
 
 ### hosts.conf
 
@@ -24,10 +33,22 @@ hosts:
     - target-name-4
 ```
 
-
-実行
+### オプション
 
 ```
-$ bundle install --path vendor/bundle
-$ bundle exec ruby diskmon.rb
+Usage: diskmon [options]        
+        --profile VALUE              profile(default: )
+        --show-ssh                   show ssh console login command (default: false)
+        --format VALUE               output format (compact, json, table, default: compact)
+        --region VALUE               region (default: )
 ```
+
+ヘルプは `--help` で表示されます
+
+
+### 実行例
+
+```
+$ bundle exec ruby diskmon.rb --profile prd --format table --show-ssh --region eu-west-1
+```
+
