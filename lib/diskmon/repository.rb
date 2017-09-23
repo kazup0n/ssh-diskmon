@@ -3,13 +3,21 @@ module DiskMon
   require 'aws-sdk'
   # EC2インスタンスのリポジトリ
   class InstanceRepository
-    def initialize
+    def initialize(cache_enabled = true)
       @ec2 = Aws::EC2::Client.new
+      @cache = InstanceInfoCache.create(cache_enabled)
+      @profile = Aws.config.key?(:profile) ? Aws.config[:profile] : 'default'
     end
 
     def find_instances_by_name(name)
+      cache = @cache.fetch(@profile, name)
+      return cache unless cache.nil?
       result = @ec2.describe_instances(filters: filter_option(name))
-      result.reservations.map(&:instances).flatten
+                   .reservations
+                   .map(&:instances)
+                   .flatten
+      @cache.save(@profile, name, result)
+      result
     end
 
     def create_direct_access_instance(name)
@@ -57,5 +65,67 @@ module DiskMon
         name: 'tag:Name', values: [name]
       }]
     end
+  end
+
+  # インスタンス情報のキャッシュ
+  class InstanceInfoCache
+    require 'pstore'
+
+    def self.create(enabled)
+      return NullCache.new unless enabled
+      InstanceInfoCache.new
+    end
+
+    def initialize(file = '.ec2_cache', ttl = 60 * 60)
+      @file = file
+      @ttl = ttl
+      @db = nil
+    end
+
+    def fetch(profile, name)
+      db = open
+      cache = nil
+      db.transaction(read_only: true) do
+        cache = db.fetch(key(profile, name), nil)
+      end
+      return nil if cache.nil?
+      return nil if cache[:created_at] + @ttl < Time.now
+      cache[:instances]
+    end
+
+    def save(profile, name, instances)
+      db = open
+      db.transaction do
+        db[key(profile, name)] = {
+          created_at: Time.now,
+          instances: instances
+        }
+        db.commit
+      end
+    end
+
+    private
+
+    def open
+      @db = PStore.new(@file) if @db.nil?
+      @db
+    end
+
+    def key(profile, name)
+      "#{profile}@@#{name}"
+    end
+  end
+
+  # キャッシュしないキャッシュの実装
+  class NullCache
+    def initialize
+      puts '**WARN** cache disabled !!'
+    end
+
+    def fetch(_profile, _name)
+      nil
+    end
+
+    def save(_profile, _name, _instances); end
   end
 end

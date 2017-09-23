@@ -53,3 +53,4 @@ build-iPhoneSimulator/
 
 
 hosts.yml
+.ec2_cache
