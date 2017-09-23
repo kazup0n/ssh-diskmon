@@ -74,7 +74,7 @@ module DiskMon
     def proxy_command
       %W[
         ssh ec2-user@#{host}
-        -o stricthostkeycheckin
+        -o StrictHostKeyChecking=no
         -W %h:%p
         -i #{to_real_key(key)}
       ].join(' ')

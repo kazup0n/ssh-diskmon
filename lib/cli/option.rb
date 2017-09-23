@@ -6,7 +6,8 @@ class Option
     profile: nil,
     show_ssh: false,
     format: :compact,
-    region: nil
+    region: nil,
+    hosts: 'default'
   }.freeze
 
   attr_reader :opts
@@ -29,6 +30,7 @@ class Option
   # CLI Parser
   class Parser < OptionParser
     def initialize(opts)
+      super
       @opts = opts.dup
       setup
     end
@@ -44,7 +46,7 @@ class Option
     private
 
     def assign(name, desc, key)
-      on(name, desc + " (default #{opts[key]})") do |v|
+      on(name, desc + " (default #{@opts[key]})") do |v|
         @opts[key] = v
       end
     end
@@ -54,13 +56,14 @@ class Option
       puts "error: #{msg}" if msg
     end
 
-    def setup(_opts)
+    def setup
       assign('--profile VALUE', 'profile', :profile)
       assign('--show-ssh', 'show ssh console login command', :show_ssh)
       on('--format VALUE', 'output format (compact, json, table)') do |v|
         @opts[:format] = v.to_sym
       end
       assign('--region VALUE', 'region', :region)
+      assign('--hosts VALUE', 'hosts', :hosts)
     end
   end
 end
