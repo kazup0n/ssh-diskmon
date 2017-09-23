@@ -1,3 +1,4 @@
+# DiskMon module
 module DiskMon
 end
 
