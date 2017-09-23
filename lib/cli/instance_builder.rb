@@ -2,10 +2,9 @@ require 'yaml'
 
 # EC2インスタンスを検索、生成するビルダー
 class InstanceBuilder
-  def initialize(host_profile = 'default',
-                 repos = DiskMon::InstanceRepository.new)
-    @repos = repos
-    @host_profile = host_profile
+  def initialize(opts)
+    @repos = DiskMon::InstanceRepository.new(!opts[:nocache])
+    @host_profile = opts[:hosts]
   end
 
   def create_instances_from_file(filename: 'hosts.yml')

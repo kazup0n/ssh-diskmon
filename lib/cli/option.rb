@@ -7,7 +7,8 @@ class Option
     show_ssh: false,
     format: :compact,
     region: nil,
-    hosts: 'default'
+    hosts: 'default',
+    nocache: false
   }.freeze
 
   attr_reader :opts
@@ -64,6 +65,7 @@ class Option
       end
       assign('--region VALUE', 'region', :region)
       assign('--hosts VALUE', 'hosts', :hosts)
+      assign('--nocache', 'disable cache', :nocache)
     end
   end
 end

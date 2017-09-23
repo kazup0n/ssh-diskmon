@@ -3,8 +3,8 @@ require 'table_print'
 
 # parse opts
 opts = Option.configure
-
-instances = InstanceBuilder.new(opts[:hosts]).create_instances_from_file.map do |instance|
+builder = InstanceBuilder.new(opts)
+instances = builder.create_instances_from_file.map do |instance|
   {
     name: instance.target.name,
     ssh: instance.ssh_command

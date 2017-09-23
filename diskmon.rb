@@ -10,7 +10,7 @@ opts = Option.configure
 formatter = BasicFormat.create(opts)
 
 timestamp = Time.now.to_datetime.rfc3339.freeze
-builder = InstanceBuilder.new(opts[:hosts])
+builder = InstanceBuilder.new(opts)
 instances = builder.create_instances_from_file.map do |instance|
   cap = instance.run_command('df -h')
   m = cap.match(%r{^/dev/xvda1\s+
