@@ -9,7 +9,7 @@ module DiskMon
 
     def find_instances_by_name(name)
       result = @ec2.describe_instances(filters: filter_option(name))
-      result.reservations.map(&:instance).flatten
+      result.reservations.map(&:instances).flatten
     end
 
     def create_direct_access_instance(name)

@@ -22,9 +22,12 @@ end
 
 # コンパクト表示
 class CompactFormat < BasicFormat
+  COLS = %w[use_percent used avail name].freeze
+
   def format(result)
+    puts COLS.join(' ')
     result.each do |r|
-      puts %w[use_percent used avail name].map(&unit).join(' ')
+      puts COLS.map { |key| unit(r, key) }.join(' ')
       puts r[:ssh] if opts[:show_ssh]
     end
   end
@@ -35,11 +38,11 @@ class CompactFormat < BasicFormat
     key = key.to_sym
     case key
     when :use_percent
-      result[key].to_s + '%'
+      r[key].to_s + '%'
     when :name
       '@' + r[key]
     else
-      result[key].to_s + 'G'
+      r[key]
     end
   end
 end
