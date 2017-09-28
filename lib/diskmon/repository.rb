@@ -119,7 +119,7 @@ module DiskMon
   # キャッシュしないキャッシュの実装
   class NullCache
     def initialize
-      puts '**WARN** cache disabled !!'
+      DiskMon.configuration.logger.warn('**WARN** cache disabled !!')
     end
 
     def fetch(_profile, _name)
