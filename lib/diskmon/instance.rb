@@ -106,7 +106,7 @@ module DiskMon
       remote_key = @target.key
       proxy_command = @bastion.proxy_command
       %W[
-        ssh -oProxyCommand='#{proxy_command}
+        ssh -oProxyCommand='#{proxy_command}'
         #{DEFAULT_USER}@#{remote_host}
         -i #{to_real_key(remote_key)}
       ].join(' ')
