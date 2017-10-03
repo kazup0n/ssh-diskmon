@@ -1,8 +1,35 @@
 # module diskmon
 module DiskMon
   require 'aws-sdk'
+
+  # インスタンスのバリデーションを行うtrait
+  module ValidateInstance
+    def create_direct_access_instance(name)
+      super(name).map { |i| validate_instance(i) }
+    end
+
+    def create_private_access_instance(name)
+      super(name).map { |i| validate_instance(i) }
+    end
+
+    def create_proxied_instance(bastion_name, target_name)
+      super(bastion_name, target_name).map { |i| validate_instance(i) }
+    end
+
+    private
+
+    def validate_instance(instance)
+      errors = instance.validate
+      msg = "Instance(#{instance}) has some errors"
+      raise InvalidStateError, msg, errors unless errors.empty?
+      instance
+    end
+  end
+
   # EC2インスタンスのリポジトリ
   class InstanceRepository
+    prepend ValidateInstance
+
     def initialize(cache_enabled = true)
       @ec2 = Aws::EC2::Client.new
       @cache = InstanceInfoCache.create(cache_enabled)
