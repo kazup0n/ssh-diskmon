@@ -4,6 +4,37 @@ require 'sshkit/dsl'
 module DiskMon
   DEFAULT_USER = 'ec2-user'.freeze
 
+  # インスタンスのバリデーション時のエラー
+  class InstanceValidationException < StandardError
+    attr_reader :errors
+
+    def initialize(msg, errors)
+      super(msg)
+      @errors = errors
+    end
+  end
+
+  # インスタンス変数のValidate
+  module ValidateNil
+    def self.included(base)
+      base.class_eval do
+        def self.validatable(*syms)
+          @validatables ||= []
+          syms.each do |sym|
+            sym = '@' + sym.to_s unless sym.to_s.start_with?('@')
+            @validatables << sym
+          end
+          validatables = @validatables = @validatables.uniq
+          define_method :validate do
+            validatables.map do |sym|
+              "#{sym}  is nil" if instance_variable_get(sym).nil?
+            end.compact
+          end
+        end
+      end
+    end
+  end
+
   # Support for private keys
   module KeySupport
     def to_real_key(key)
@@ -14,7 +45,9 @@ module DiskMon
   # インスタンスの骨格実装
   class BasicInstance
     include KeySupport
+    include ValidateNil
 
+    validatable :instance_id, :key, :host, :name
     attr_reader :instance_id, :key, :host, :name
 
     def initialize(instance_id, key, host, name)
@@ -22,6 +55,12 @@ module DiskMon
       @key = key
       @host = host
       @name = name
+    end
+
+    def validate
+      %i[@instance_id @key @host @name].map do |sym|
+        "#{sym}  is nil" if instance_variable_get(sym).nil?
+      end.compact
     end
 
     def create_ssh_host
@@ -84,9 +123,11 @@ module DiskMon
   # 踏み台経由でアクセス可能なインスタンス
   class ProxiedInstance
     include KeySupport
+    include ValidateNil
     include SSHKit::DSL
 
     attr_reader :bastion, :target
+    validatable :bastion, :target
 
     def initialize(bastion, target)
       @bastion = bastion

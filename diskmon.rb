@@ -2,16 +2,16 @@ require 'sshkit'
 require './lib/diskmon'
 require 'date'
 
-SSHKit.config.output_verbosity = Logger::ERROR
-
 # parse opts
 opts = Option.configure
+DiskMon.configuration(opts)
 
 formatter = BasicFormat.create(opts)
 
 timestamp = Time.now.to_datetime.rfc3339.freeze
 builder = InstanceBuilder.new(opts)
 instances = builder.create_instances_from_file.map do |instance|
+  DiskMon.configuration.logger.debug("Trying  command on #{instance}")
   cap = instance.run_command('df -h')
   m = cap.match(%r{^/dev/xvda1\s+
   (?<size>[0-9.]+[KMG])\s+

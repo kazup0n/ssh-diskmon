@@ -8,7 +8,8 @@ class Option
     format: :compact,
     region: nil,
     hosts: 'default',
-    nocache: false
+    nocache: false,
+    verbose: :info
   }.freeze
 
   attr_reader :opts
@@ -52,19 +53,26 @@ class Option
       end
     end
 
+    def assign_symbol(name, desc, key, symbols)
+      on(name, desc + " (default #{@opts[key]}, #{symbols.join(', ')})") do |v|
+        @opts[key] = v.to_sym
+      end
+    end
+
     def usage(msg)
       puts to_s
       puts "error: #{msg}" if msg
     end
 
     def setup
-      assign('--profile VALUE', 'profile', :profile)
+      assign('--profile profile', 'profile', :profile)
       assign('--show-ssh', 'show ssh console login command', :show_ssh)
-      on('--format VALUE', 'output format (compact, json, table)') do |v|
-        @opts[:format] = v.to_sym
-      end
-      assign('--region VALUE', 'region', :region)
-      assign('--hosts VALUE', 'hosts', :hosts)
+      assign_symbol('--format format', 'output format',
+                    :format, %i[compact json table])
+      assign_symbol('--verbose level', 'verbosity',
+                    :verbose, %i[debug info warn error])
+      assign('--region region', 'region', :region)
+      assign('--hosts hosts', 'hosts', :hosts)
       assign('--nocache', 'disable cache', :nocache)
     end
   end
